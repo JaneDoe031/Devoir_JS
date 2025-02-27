@@ -1,58 +1,82 @@
-function addListValue () {
+document.addEventListener('DOMContentLoaded', () => {
+  const form = document.querySelector('form');
+  const firstNameField = document.querySelector('#first-name');
+  const lastNameField = document.querySelector('#last-name');
+  const messageField = document.querySelector('#message');
+  const errorMessageContainer = document.querySelector('#error-message');
+  const commentListContainer = document.querySelector('#comment-list');
+
+  // Check for existing comments in LocalStorage
+  const savedComments = JSON.parse(localStorage.getItem('comments')) || [];
+
+  // Display saved comments
+  savedComments.forEach((comment) => {
+    const newComment = displayComment(comment);
+    commentListContainer.appendChild(newComment);
+      });
+
     
-let input = document.getElementById("first-name");
+  // Submit form
+  function submitForm(event) {
+    event.preventDefault();
 
-let textarea = document.getElementById("message");
+    if (!firstNameField.value || !lastNameField.value || !messageField.value) {
+      errorMessageContainer.style.display = 'block';
+      return;
+    }
 
-let newItemList = document.createElement("li");
+    errorMessageContainer.style.display = 'none';
 
-let newItemListContent = document.createTextNode(input.value);
+    const newComment = {
+      firstName: firstNameField.value,
+      lastName: lastNameField.value,
+      message: messageField.value,
+    };
 
-newItemList.appendChild (newItemListContent);
+    const newCommentElement = displayComment(newComment);
 
-textarea.appendChild (newItemList); }
+    commentListContainer.appendChild(newCommentElement);
 
+    form.reset();
 
+    // Save the comment to LocalStorage
+    savedComments.push(newComment);
+    localStorage.setItem('comments', JSON.stringify(savedComments));
+  }
 
+  // Add event listener to the form
+  form.addEventListener('submit', submitForm);
 
+  // Display comment function
+  function displayComment(comment) {
+    const newComment = document.createElement('div');
+    newComment.classList.add(
+      'flex',
+      'space-x-4',
+      'text-sm',
+      'text-gray-500',
+      'py-10',
+      'border-t',
+      'border-gray-200'
+    );
 
+    newComment.innerHTML = `
+      <div class="flex-1">
+        <h3 class="font-medium text-gray-900">${comment.firstName} ${comment.lastName}</h3>
+        <div class="prose prose-sm mt-4 max-w-none text-gray-500">
+          <p>${comment.message}</p>
+        </div>
+      </div>
+    `;
 
-/*
-//Création d'une balise section 
-let section = document.createElement("section"); 
+    return newComment;
+  }
 
-//Création d'une balise h1 
-let titre = document.createElement("h1"); 
-
-//Création d'un texte 
-let titreTexte = document.createTextNode('Nouveau titre'); 
-
-//Ajout du texte à la balise h1 précédement créé 
-titre.appendChild(titreTexte); 
-
-//Création d'une balise h1 
-let paragraphe = document.createElement("p"); 
-
-//Création d'un texte 
-let paragrapheTexte = document.createTextNode('Nouveau paragraphe'); 
-
-//Ajout du texte à la balise p précédement créé 
-paragraphe.appendChild(paragrapheTexte); 
-
-//Ajout de la balise h1 à la section 
-section.appendChild(titre); 
-
-//Ajout de la balise p à la section 
-section.appendChild(paragraphe); 
-
-//Ajout de la classe CSS 
-paragraphe.classList.add("styleP") 
-
-//Création d'une balise section 
-let main = document.querySelector("main"); 
-
-main.appendChild(section);
-
-
-
-
+  // Add event listener for error message
+  document.getElementById("comment-form").addEventListener("submit", function (event) {
+    if (firstNameField.value.length === 0 || lastNameField.value.length === 0 || messageField.value.length === 0) {
+      event.preventDefault();
+      errorMessageContainer.style.display = 'block';
+    }
+  });
+});
